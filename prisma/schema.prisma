@@ -1,0 +1,40 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // رابط Neon.tech الخاص بك
+}
+
+model Job {
+  id            String  @id @default(cuid())
+  title         String // المسمى الوظيفي النظيف
+  originalTitle String // العنوان الأصلي قبل التنظيف
+  company       String  @default("Confidential")
+  location      String // المدينة (طرابلس، بنغازي، الخ)
+  fullLocation  String?
+  category      String // القسم
+  type          String // دوام كامل، جزئي، الخ
+
+  // تواريخ مفصولة للتحليل الزمني
+  startDate DateTime?
+  endDate   DateTime?
+
+  description String @db.Text
+
+  // بيانات الرواتب المستخرجة للـ Charts
+  minSalary Float?
+  maxSalary Float?
+  currency  String @default("LYD")
+
+  url       String   @unique
+  scrapedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([location])
+  @@index([category])
+  @@index([title])
+}
