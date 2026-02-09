@@ -36,7 +36,7 @@ export async function GET(request) {
           ],
         },
       });
-      return NextResponse.json({ query: searchQuery, count });
+      return NextResponse.json({ count });
     }
 
     const [totalJobs, salaryAggr, rawLocations, rawTitles, categories] =
@@ -92,14 +92,14 @@ export async function GET(request) {
         category: cleanText(cat.category?.split("-")[0] || "عام"),
         count: cat._count.category,
         avgSalary: Math.round(
-          ((cat._avg.minSalary || 0) + (cat._avg.maxSalary || 0)) / 2,
+          ((cat._avg.minSalary || 0) + (cat._avg.maxSalary || 0)) / 2
         ),
       })),
     });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

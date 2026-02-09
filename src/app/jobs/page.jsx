@@ -62,11 +62,29 @@ export default function FinalStatisticsPage() {
       });
   }, []);
 
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (query.length > 2) {
+        try {
+          const res = await fetch(
+            `/api/stats?query=${encodeURIComponent(query)}`,
+          );
+          const json = await res.json();
+          setSearchCount(json.count);
+        } catch (e) {
+          setSearchCount(null);
+        }
+      } else {
+        setSearchCount(null);
+      }
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [query]);
 
   const cleanInsights = useMemo(() => {
     if (!data?.marketInsights) return [];
     return data.marketInsights
-      .filter((item) => item.avgSalary < 50000 && item.avgSalary > 0) 
+      .filter((item) => item.avgSalary < 50000 && item.avgSalary > 0)
       .map((item) => ({
         ...item,
         category:
@@ -108,9 +126,8 @@ export default function FinalStatisticsPage() {
           </p>
         </header>
 
-        
         <section className="mb-12">
-          <div className="bg-white p-2 rounded-[2rem] shadow-sm border border-slate-200 flex items-center gap-4 transition-all focus-within:border-blue-400">
+          <div className="bg-white p-2 rounded-[2rem] shadow-sm border border-slate-200 flex items-center gap-4 transition-all focus-within:border-blue-400 relative">
             <div className="mr-6 p-3 bg-slate-50 rounded-2xl text-slate-400 group-focus-within:text-blue-600">
               <Search size={22} />
             </div>
@@ -119,11 +136,16 @@ export default function FinalStatisticsPage() {
               placeholder="ابحث عن مسمى وظيفي محدد..."
               className="flex-grow bg-transparent border-none outline-none text-xl font-bold py-4 placeholder:text-slate-300"
               onChange={(e) => setQuery(e.target.value)}
+              value={query}
             />
+            {searchCount !== null && (
+              <div className="ml-4 bg-blue-600 text-white px-6 py-3 rounded-2xl font-black text-sm animate-in fade-in slide-in-from-left-4">
+                {searchCount} وظيفة متاحة
+              </div>
+            )}
           </div>
         </section>
 
-     
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <MetricCard
             icon={TrendingUp}
@@ -148,7 +170,6 @@ export default function FinalStatisticsPage() {
           />
         </div>
 
-      
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200">
             <div className="flex items-center gap-3 mb-10 text-blue-600 font-black">
@@ -165,7 +186,9 @@ export default function FinalStatisticsPage() {
                     <div
                       className="h-full bg-blue-600"
                       style={{
-                        width: `${(item.count / data.trendingTitles[0].count) * 100}%`,
+                        width: `${
+                          (item.count / data.trendingTitles[0].count) * 100
+                        }%`,
                       }}
                     />
                   </div>
